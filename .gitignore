@@ -8,3 +8,6 @@ wheels/
 
 # Virtual environments
 .venv
+
+games_list.json
+date_archive.json
