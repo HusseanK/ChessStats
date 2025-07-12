@@ -162,16 +162,17 @@ def check_winner(res) -> str:
         ValueError: If the condition is unknown
 
     Returns:
-        str : returns the winner, either username or "draw"
+        str : returns the winner's colour or "draw"
     """
+
     if res in WIN_CONDS:
-        return USERNAME
-    elif res in LOSS_CONDS:
-        return FRIEND_USERNAME
-    elif res in DRAW_CONDS:
+        return "White"
+    if res in LOSS_CONDS:
+        return "Black"
+    if res in DRAW_CONDS:
         return "Draw"
-    else:
-        raise ValueError(f"Unknown condition {res!r}")
+
+    raise ValueError(f"Unknown condition {res!r}")
 
 
 def main(urls: list[str]) -> None:
@@ -190,7 +191,7 @@ def main(urls: list[str]) -> None:
         # Just to show everything's not broken and still working
         print("Continuining.. New Url Processing")
         # Slight sleep timer, don't want to overload server, could remove or shorten
-        time.sleep(0.5)
+        time.sleep(0.25)
 
         # Splitting the url to use year/month in the dict (urls: {url}/{player}/games/{year}/{month})
         split_url = url.split("/")
@@ -211,14 +212,8 @@ def main(urls: list[str]) -> None:
                 # Skip games not against friend
                 continue
 
-            # Finds the desired username colour
-            if USERNAME == white["username"]:
-                res = white["result"]
-            else:
-                res = black["result"]
-
-            # Sets winning status for below
-            winner = check_winner(res)
+            # Sets winning status for below (Setting win to either Black/White/Draw and figuring it out in stats)
+            winner = check_winner(white["result"])
             # append onto the list above
             all_games.append(
                 {

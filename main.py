@@ -2,20 +2,8 @@ import matplotlib.pyplot as plt
 import json
 import numpy as np
 
-DATES = {
-    "01": "Jan",
-    "02": "Feb",
-    "03": "Mar",
-    "04": "Apr",
-    "05": "May",
-    "06": "June",
-    "07": "July",
-    "08": "Aug",
-    "09": "Sep",
-    "10": "Oct",
-    "11": "Nov",
-    "12": "Dec",
-}
+# Username you want to check the stats for
+USERNAME = ""
 
 
 def import_games():
@@ -24,48 +12,71 @@ def import_games():
     return data
 
 
+def check_winner(v) -> dict:
+    """
+    Returns a dict of winning stats
+
+    Args:
+        v (dict): Dict item of each month of the saved data
+
+    """
+
+    # {"white":'name', "black":"name","winner":"white"}
+    total = {}
+    for month, data in v.items():
+        white_wins = 0
+        black_wins = 0
+        white_enemy_wins = 0
+        black_enemy_wins = 0
+        total_draws = 0
+        for i in range(len(data)):
+            # Match-case, kinda messy but works, if i want to refactor, instead change saving file.
+            match (data[i]["winner"]):
+                case "Draw":
+                    total_draws += 1
+                    continue
+                case "White":
+                    if data[i]["white"] == USERNAME:
+                        white_wins += 1
+                    else:
+                        white_enemy_wins += 1
+                    continue
+                case "Black":
+                    if data[i]["black"] == USERNAME:
+                        black_wins += 1
+                    else:
+                        black_enemy_wins += 1
+                    continue
+                case _:
+                    raise ValueError(f"Error reading value {data[i]["winner"]}")
+
+        # How the stats are allocated
+        total[month] = {
+            "white_wins": white_wins,
+            "black_wins": black_wins,
+            "white_enemy_wins": white_enemy_wins,
+            "black_enemy_wins": black_enemy_wins,
+            "total_draws": total_draws,
+        }
+    return total
+
+
 def handle_games():
+    """
+    Return a dict of final values on winning/loss stats
+
+    Returns:
+        dict: a dict of values based on each year/month
+    """
     # All Data from file
     data = import_games()
     # K = Year, V = Dict of months (05, 06 etc)
     final = {}
+
     for k, v in data.items():
         # Month, enumerated above, with each game
-        total = {}
+        final[k] = check_winner(v)
 
-        for month, data in v.items():
-            white_wins = 0
-            black_wins = 0
-            white_enemy_wins = 0
-            black_enemy_wins = 0
-            total_draws = 0
-            for i in range(len(data)):
-                winner = data[i]["winner"]
-                if winner != "Husy15":
-                    if winner == "Draw":
-                        total_draws += 1
-                        continue
-                    if data[i]["white"] == "Husy15":
-                        black_enemy_wins += 1
-                        continue
-                    else:
-                        white_enemy_wins += 1
-                        continue
-
-                if data[i]["white"] == "Husy15":
-                    white_wins += 1
-                    continue
-                black_wins += 1
-
-            total[month] = {
-                "white_wins": white_wins,
-                "black_wins": black_wins,
-                "white_enemy_wins": white_enemy_wins,
-                "black_enemy_wins": black_enemy_wins,
-                "total_draws": total_draws,
-            }
-
-        final[k] = total
     return final
 
 

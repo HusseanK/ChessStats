@@ -11,6 +11,3 @@ wheels/
 
 games_list.json
 date_archive.json
-
-# uncommented for my usernames
-chess_data.py
